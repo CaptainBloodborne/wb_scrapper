@@ -18,7 +18,7 @@ def get_driver(headless):
         options.add_argument("--headless")
 
     # initialize driver
-    driver = webdriver.Chrome(chrome_options=options, executable_path="/home/artem/web_drivers/chromedriver")
+    driver = webdriver.Chrome(chrome_options=options, executable_path="C:\\chromedriver\\chromedriver")
     return driver
 
 
@@ -45,10 +45,17 @@ def connect_to_base(browser, search_request):
             else:
                 break
         except selenium.common.exceptions.NoSuchElementException:
-            card = browser.find_element_by_class_name("product-detail")
-            if card:
-                print(f"По запросу найдена ({search_request}) только 1 нм")
-            break
+            try:
+                card = browser.find_element_by_class_name("product-detail")
+                if card:
+                    print(f"По запросу найдена ({search_request}) только 1 нм")
+            except Exception as err:
+                print(f"Запрос {search_request} - ошибка!")
+                not_found = browser.find_element_by_class_name("catalog-page__text").text
+                # if not_found == "По Вашему запросу ничего не найдено.":
+                #     return not_found
+                # else:
+                break
         except Exception as e:
             print(f"Запрос {search_request} - ошибка!")
             print(e)
