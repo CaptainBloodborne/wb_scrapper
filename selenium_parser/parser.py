@@ -12,13 +12,26 @@ from selenium.webdriver.common.keys import Keys
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
 
+# def get_driver(headless):
+#     options = webdriver.ChromeOptions()
+#     options.add_argument("--start-maximized")
+#     if headless:
+#         options.add_argument("--headless")
+#
+#     # initialize driver
+#     driver = webdriver.Chrome(chrome_options=options, executable_path="/home/artem/web_drivers/chromedriver")
+#     return driver
+
+
 def get_driver(headless):
-    options = webdriver.ChromeOptions()
+    options = webdriver.FirefoxOptions()
     if headless:
         options.add_argument("--headless")
 
     # initialize driver
-    driver = webdriver.Chrome(chrome_options=options, executable_path="C:\\chromedriver\\chromedriver")
+    driver = webdriver.Firefox(options=options, executable_path="/home/artem/web_drivers/geckodriver")
+    driver.implicitly_wait(10)
+    driver.maximize_window()
     return driver
 
 
@@ -31,26 +44,37 @@ def connect_to_base(browser, search_request):
             WebDriverWait(browser, 5).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "adaptive"))
             )
-            search_block = browser.find_element_by_class_name("nav-element__search")
-            search_block.click()
-            time.sleep(1)
-            search_allowed = browser.find_element_by_id("mobileSearchInput")
-            search_allowed.send_keys(search_request)
-            time.sleep(1)
-            search_allowed.send_keys(Keys.ENTER)
-            time.sleep(1)
-            not_found = browser.find_element_by_class_name("catalog-page__text").text
-            if not_found == "По Вашему запросу ничего не найдено.":
+            # search = browser.find_element(By.XPATH, '/html/body/div[1]/header/div/div[2]/div[3]/div[1]/input')
+            # search.click()
+            # time.sleep(2)
+            # search.send_keys(search_request)
+            # time.sleep(2)
+            # search.send_keys(Keys.ENTER)
+            # time.sleep(2)
+            # not_found = browser.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[2]/div/p').text
+            search = WebDriverWait(browser, 5).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="searchInput"]'))
+            )
+            search.click()
+            search.send_keys(search_request)
+            search.send_keys(Keys.ENTER)
+            not_found = WebDriverWait(browser, 5).until(
+                EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[2]/div/p'))
+            )
+            if not_found.text == "По Вашему запросу ничего не найдено.":
                 return not_found
             else:
                 break
         except selenium.common.exceptions.NoSuchElementException:
             try:
-                card = browser.find_element_by_class_name("product-detail")
+                card = WebDriverWait(browser, 5).until(
+                EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[2]/div/div[2]/div[3]'))
+                )
                 if card:
                     print(f"По запросу найдена ({search_request}) только 1 нм")
             except Exception as err:
                 print(f"Запрос {search_request} - ошибка!")
+                print(err)
                 not_found = browser.find_element_by_class_name("catalog-page__text").text
                 # if not_found == "По Вашему запросу ничего не найдено.":
                 #     return not_found
