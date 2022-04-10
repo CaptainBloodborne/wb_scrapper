@@ -12,27 +12,28 @@ from selenium.webdriver.common.keys import Keys
 BASE_DIR = Path(__file__).resolve(strict=True).parent
 
 
-# def get_driver(headless):
-#     options = webdriver.ChromeOptions()
-#     options.add_argument("--start-maximized")
-#     if headless:
-#         options.add_argument("--headless")
-#
-#     # initialize driver
-#     driver = webdriver.Chrome(chrome_options=options, executable_path="/home/artem/web_drivers/chromedriver")
-#     return driver
-
-
 def get_driver(headless):
-    options = webdriver.FirefoxOptions()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--start-maximized")
+    options.add_argument("--window-size=1920,1080")
     if headless:
         options.add_argument("--headless")
 
     # initialize driver
-    driver = webdriver.Firefox(options=options, executable_path="/home/artem/web_drivers/geckodriver")
-    driver.implicitly_wait(10)
-    driver.maximize_window()
+    driver = webdriver.Chrome(chrome_options=options, executable_path="/home/artem/web_drivers/chromedriver")
     return driver
+
+
+# def get_driver(headless):
+#     options = webdriver.FirefoxOptions()
+#     if headless:
+#         options.add_argument("--headless")
+#
+#     # initialize driver
+#     driver = webdriver.Firefox(options=options, executable_path="/home/artem/web_drivers/geckodriver")
+#     driver.implicitly_wait(10)
+#     driver.maximize_window()
+#     return driver
 
 
 def connect_to_base(browser, search_request):
@@ -41,9 +42,9 @@ def connect_to_base(browser, search_request):
     while connection_attempts < 3:
         try:
             browser.get(base_url)
-            WebDriverWait(browser, 5).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "adaptive"))
-            )
+            # WebDriverWait(browser, 5).until(
+            #     EC.presence_of_element_located((By.CLASS_NAME, "adaptive"))
+            # )
             # search = browser.find_element(By.XPATH, '/html/body/div[1]/header/div/div[2]/div[3]/div[1]/input')
             # search.click()
             # time.sleep(2)
@@ -53,8 +54,10 @@ def connect_to_base(browser, search_request):
             # time.sleep(2)
             # not_found = browser.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div/div/div[2]/div/p').text
             search = WebDriverWait(browser, 5).until(
-                EC.element_to_be_clickable((By.XPATH, '//*[@id="searchInput"]'))
+                EC.presence_of_element_located((By.XPATH, '//*[@id="searchInput"]'))
             )
+            # print(search)
+            # break
             search.click()
             search.send_keys(search_request)
             search.send_keys(Keys.ENTER)

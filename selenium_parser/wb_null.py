@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 from time import sleep, time
 
-from selenium_parser.parser import connect_to_base, get_driver, write_to_file
+from parser import connect_to_base, get_driver, write_to_file
 from concurrent.futures import ThreadPoolExecutor, wait
 
 
@@ -14,7 +14,7 @@ def run_process(search_request):
 
     conn = connect_to_base(browser, search_request)
     if conn:
-        sleep(1)
+        sleep(2)
         browser.quit()
         print(f"Found null response - {search_request}")
         return search_request
@@ -35,13 +35,13 @@ if __name__ == "__main__":
     output_filename = f"output_{output_timestamp}.csv"
     output_list = list()
 
-    df = pd.read_csv("E:\\Downloads\Telegram Desktop\\WBX_Search._Битый_поиск_2022_04_05.csv", index_col=["text"])
+    df = pd.read_csv("/home/artem/Documents/wildberries/csv_reports/WBX_Search._Битый_поиск_2022_04_10.csv", index_col=["text"])
     search_list = [text for text in df.index]
 
     # scrape and crawl
     with ThreadPoolExecutor(max_workers=1) as executor:
         futures = [
-            executor.submit(run_process, text) for text in search_list[:100]
+            executor.submit(run_process, text) for text in search_list[:10]
         ]
     wait(futures)
 
